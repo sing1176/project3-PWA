@@ -5,37 +5,30 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" contenxt="width=device-width, initial-scale=1.0" />
   <title>Movie Findr</title>
-  <!-- pwa manifest and android support meta and link tags-->
 
+  <!-- pwa manifest and android support meta and link tags-->
   <link rel="manifest" href="./manifest.json" />
   <meta name="theme-color" content="#000033" />
-
   <!-- ios support link and meta tags-->
   <link rel="apple-touch-icon" sizes="180x180" href="/img/icons/apple-touch-icon.png">
-  <link rel="mask-icon" href="/img/icons/safari-pinned-tab.svg" color="#5bbad5">
   <meta name="apple-mobile-web-app-status-bar" content="#000000" />
-
+  <link rel="mask-icon" href="/img/icons/safari-pinned-tab.svg" color="#5bbad5">
   <!--Import Google Icon Font-->
-
   <!-- styles materialize and main-->
   <link rel="stylesheet" href="./css/materialize.min.css" />
   <link rel="stylesheet" href="./css/main.css" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
   <!-- Browser tab icons -->
   <link rel="icon" type="image/png" sizes="32x32" href="/img/icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/img/icons/favicon-16x16.png">
   <link rel="shortcut icon" href="favicon.ico">
-  
   <!-- Windows 8 and 10 metro support -->
   <meta name="msapplication-TileColor" content="#000000">
   <meta name="msapplication-config" content="/img/icons/browserconfig.xml">
-
   <!-- scripts materialize and main app -->
   <script src="./js/materialize.min.js" defer></script>
   <script src="./js/app.js" defer></script>
 </head>
-
 	<body>
 <!-- components over top -->
 		<!-- nav bar -->
@@ -44,6 +37,19 @@
 				<a href="index.html" class="brand-logo left">Movie Guy</a>
 			</div>
 		</nav>
+    
+        <!-- search bar -->
+        <div class="nav-wrapper z-depth-4 container" id="searchBar">
+          <form name="searchForm" id="searchForm">
+            <div class="input-field">
+              <input id="search" type="search" required />
+              <label class="label-icon" for="search">
+                <i class="material-icons">search</i>
+              </label>
+              <i class="material-icons" id="closeSearchBtn">close</i>
+            </div>
+          </form>
+        </div>
 
 		<section class="page" id="">
 			<div class="container">
@@ -51,19 +57,6 @@
 			</div>
 		</section>
 		
-
-		<!-- search bar -->
-		<div class="nav-wrapper z-depth-4 container" id="searchBar">
-			<form name="searchForm" id="searchForm">
-				<div class="input-field">
-					<input id="search" type="search" required />
-					<label class="label-icon" for="search">
-						<i class="material-icons">search</i>
-					</label>
-					<i class="material-icons" id="closeSearchBtn">close</i>
-				</div>
-			</form>
-		</div>
 
 	</body>
 </html>

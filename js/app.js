@@ -11,33 +11,37 @@ const APP = {
 	isStandalone: false,
 	sw: null, //your service worker
 	db: null, //your database
-	dbVersion: 5,
-	results:[],
-	objectStore:'',
-	
+	dbVersion: 2,
+	results: [],
+	objectStore: '',
+
 	init() {
 		//register service worker
 		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('sw.js').then(
-				(reg) => {
-					APP.sw = reg.installing || reg.waiting || reg.active;
+			navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(
+				(registration) => {
+					registration.installing ||
+						registration.waiting ||
+						registration.active;
+					console.log('Service worker registered');
 				},
 				(error) => {
 					console.log('Service worker registration failed:', error);
 				}
 			);
+			navigator.serviceWorker.addEventListener('controllerchange', async () => {
+				APP.sw = navigator.serviceWorker.controller;
+			});
+			navigator.serviceWorker.addEventListener('message', APP.onMessage);
 		} else {
 			console.log('Service workers are not supported.');
 		}
 		//open the database
 		APP.openDB();
-
 		//run the pageLoaded function
 		APP.pageLoaded();
-
 		//add UI listeners
 		APP.addListeners();
-
 		//check if the app was launched from installed version
 		if (navigator.standalone) {
 			console.log('Launched: Installed (iOS)');
@@ -46,25 +50,18 @@ const APP = {
 			console.log('Launched: Installed');
 			APP.isStandalone = true;
 		} else {
-			console.log('Launched: Browser Tab');
 			APP.isStandalone = false;
 		}
 	},
 	pageLoaded() {
-		//page has just loaded and we need to check the queryString
-		//based on the querystring value(s) run the page specific tasks
-		// console.log('page loaded and checking', location.search);
 		let params = new URL(document.location).searchParams;
 		let keyword = params.get('keyword');
 		if (keyword) {
-			//means we are on results.html
-			console.log(`on results.html - startSearch(${keyword})`);
 			APP.startSearch(keyword);
 		}
 		let mid = parseInt(params.get('movie_id'));
 		let ref = params.get('ref');
 		if (mid && ref) {
-			//we are on suggest.html
 			console.log(`look in db for movie_id ${mid} or do fetch`);
 			APP.startSuggest({ mid, ref });
 		}
@@ -126,22 +123,31 @@ const APP = {
 	},
 	onMessage({ data }) {
 		//TODO:
-		//message received from service worker
+		console.log(`receiving ${data} from service worker`);
 	},
 	startSearch(keyword) {
 		//TODO: check in IDB for movie results
 		if (keyword) {
-			//check the db
-			//if no matches make a fetch call to TMDB API
-			//or make the fetch call and intercept it in the SW
 			let url = `${APP.BASE_URL}search/movie?api_key=${APP.API_KEY}&query=${keyword}`;
-
 			APP.getData(url, (data) => {
 				//this is the CALLBACK to run after the fetch
 				APP.results = data.results;
 				APP.useSearchResults(keyword);
+				APP.saveDB(keyword)
 			});
 		}
+	},
+	saveDB(keyword){
+		console.log(APP.results);
+		let transaction = APP.db.transaction('movieStore', 'readwrite');
+		transaction.oncomplete = (ev) => {
+			console.log('Transaction is Completed');
+		};
+		transaction.onerror = (err) => {
+			console.log('Transaction is not Completed');
+		};
+		let store = transaction.objectStore('movieStore')
+		.add(APP.results, keyword)
 	},
 	useSearchResults(keyword) {
 		//after getting fetch or db results
@@ -208,7 +214,7 @@ const APP = {
 			if (movies.length > 0) {
 				container.innerHTML = movies
 					.map((obj) => {
-						let img = './img/icon-512x512.png';
+						let img = './img/icons/android-chrome-512x512.png';
 						if (obj.poster_path != null) {
 							img = APP.IMG_URL + 'w500/' + obj.poster_path;
 						}
@@ -241,28 +247,19 @@ const APP = {
 		}
 	},
 	openDB() {
-		//open the indexedDB
 		let request = indexedDB.open('movieDB', APP.dbVersion);
-		//success listener
 		request.addEventListener('success', (ev) => {
 			APP.db = ev.target.result;
 		});
-		// error listener
 		request.addEventListener('error', (err) => {
 			console.warn(err);
 		});
-		//upgradeneeded listener
-		request.addEventListener('upgradeneeded', (ev) => {
-			APP.db = ev.target.result;
-			let oldVersion = ev.oldVersion;
-			let newVersion = ev.newVersion || db.version;
-			console.log('DB updated from version', oldVersion, 'to', newVersion);
-			if (!APP.db.objectStoreNames.contains('movieStore')) {
-				APP.objectStore = APP.db.createObjectStore('movieStore', {
-					keyPath: 'id',
-				});
-			}	
-		});
+		request.onupgradeneeded = (ev) => {
+			let db = ev.target.result;
+			if (!db.objectStoreNames.contains('movieStore')) {
+				db.createObjectStore('movieStore');
+			}
+		};
 	},
 };
 

@@ -1,25 +1,26 @@
 {
   "name": "Suggest-A-Film",
-  "short_name": "Suggester",
+  "short_name": "Movie Guy",
   "description": "This app suggests movies using TMDB API",
   "orientation": "portrait-primary",
-  "theme_color": "#000000",
-  "background_color": "#bada55",
+ "theme_color": "#2196f3",
+  "background_color": "#2196f3",
   "display": "standalone",
   "scope": "/",
+  "lang": "en-CA",
   "start_url": "/index.html",
   "icons": [
     {
       "src": "/img/icons/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
   },
   {
       "src": "/img/icons/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
   }
   ]
 }
